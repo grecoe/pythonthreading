@@ -1,8 +1,12 @@
+import collections
 from threading import *
+from datetime import datetime, timedelta
 from threadutils.Tracking import ThreadTracking
 from threadutils.Log import AsyncLog
 
 class ExecuteCommandAsync(Thread):
+    ExecutionResult = collections.namedtuple('ExecutionResult', 'latency result')
+
     '''
         Thread class used when processing items - parseObject() because in VM's it can create a secondary call
         that is incredibly slow. 
@@ -17,9 +21,14 @@ class ExecuteCommandAsync(Thread):
     def run(self):
         self.tracking.modifyThreadCount(1)
 
-        new_obj = self.executionFunction(self.executionArguments)
 
-        self.tracking.addThreadResult(new_obj)
+        start = datetime.now()
+        execution_result = self.executionFunction(self.executionArguments)
+        end = datetime.now()
+
+        result = ExecuteCommandAsync.ExecutionResult(latency = (end-start), result = execution_result)
+
+        self.tracking.addThreadResult(result)
         self.tracking.modifyThreadCount(-1)
 
         #AsyncLog.print("WORKER COMPLETE")

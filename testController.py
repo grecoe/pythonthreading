@@ -15,17 +15,23 @@ from threadutils.Controller import AsyncController
 from threadutils.Log import AsyncLog
 
 '''
-    Network requests are most benefitted by this....
+    This is the call we are going to use in the thread. Any return value 
+    will be accumulated by the controller. 
 '''
-def callInAThread(arg1):
-    if isinstance(arg1, tuple):
-        if len(arg1) != 1:
+def networkCall(url):
+    '''
+        IF it's a tuple then it's a threaded call from the controller 
+        and we need to unpack it. 
+    '''
+    if isinstance(url, tuple):
+        if len(url) != 1:
             raise Exception("Incorrect argument count...")
-        arg1 = arg1[0]
+        url = url[0]
 
-    r = requests.get(arg1)
+    r = requests.get(url)
     r.status_code
-    AsyncLog.print("Thread: " + str(threading.get_ident()) + " : Called with:" + str(arg1) + " " + str(r.status_code))
+
+    return {'target' : url, 'result' : r.status_code}
 
 '''
     Test the call with params and with a tuple
@@ -33,12 +39,12 @@ def callInAThread(arg1):
 url = "http://www.boston.com"
 
 print("Call with regular args....")
-callInAThread(url)
+networkCall(url)
 print("Call with tuple arg....")
-callInAThread((url))
+networkCall((url))
 print("Call with invalid tuple arg....")
 try:
-    callInAThread((url,2))
+    networkCall((url,2))
 except Exception as ex:
     print("ERROR: ", ex)
 
@@ -49,7 +55,7 @@ except Exception as ex:
 print("Call multiple times no thread...")
 start = datetime.now()
 for i in range(20):
-    callInAThread(url)
+    print(networkCall(url))
 stop = datetime.now()
 nothread_diff = stop - start
 print(nothread_diff)
@@ -64,10 +70,16 @@ asyncController = AsyncController(10)
 start = datetime.now()
 
 for i in range(20):
-    asyncController.queueTask(callInAThread, url)
+    asyncController.queueTask(networkCall, url)
 
 while asyncController.waitExecution(1) == False:
     print("MAIN - Waiting on execution....")
+
+total_latency = 0
+for result in asyncController.getExecutionResults():
+    current_latency = (result.latency.microseconds/1000)
+    total_latency += current_latency
+    print("Latency (ms): ", current_latency, "Result: ", result.result)
 
 stop = datetime.now()
 thread_diff = stop - start
@@ -76,3 +88,4 @@ print(thread_diff)
 
 print("Execution time no thread ", nothread_diff)
 print("Execution time with thread ", thread_diff)
+print(" Latency in thread (s): ", total_latency)

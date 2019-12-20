@@ -28,7 +28,7 @@ class AsyncController:
         #AsyncLog.print("Current thread count = " + str(current_thread_count))
         while current_thread_count < self.executionCount:
             if len(self.queue) > 0:
-                AsyncLog.print("    Pushing item to execution " )
+                #AsyncLog.print("    Pushing item to execution " )
                 threadToExecute = self.queue.pop(0)
                 threadToExecute.start()
                 current_thread_count += 1
