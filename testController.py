@@ -30,7 +30,7 @@ def networkCall(url):
 
     r = requests.get(url)
     r.status_code
-
+    
     return {'target' : url, 'result' : r.status_code}
 
 '''
@@ -50,7 +50,8 @@ except Exception as ex:
 
 
 '''
-    Call it 20 times no threading
+    Call it 20 times no threading. Time it so we can 
+    see how long it takes regularly. 
 '''
 print("Call multiple times no thread...")
 start = datetime.now()
@@ -62,7 +63,13 @@ print(nothread_diff)
 
 
 '''
-    Now set up a controller and call it 20 times
+    Now set up a controller and call it 20 times via threads. We will time 
+    this too to see the difference in timing. 
+
+    NOte that the results collected by the controller are a 
+    named tuple with 
+        latency - datetime.timedelta
+        result - Whatever the function returns, if anything
 '''
 print("Thread it")
 asyncController = AsyncController(10)
@@ -70,16 +77,30 @@ asyncController = AsyncController(10)
 start = datetime.now()
 
 for i in range(20):
-    asyncController.queueTask(networkCall, url)
+    asyncController.queueTask(networkCall, url, "invalid parameter")
 
+'''
+    Threads do not join the main thread, wait until they 
+    are all finished.
+'''
 while asyncController.waitExecution(1) == False:
     print("MAIN - Waiting on execution....")
 
+'''
+    Now that they are all done, get the results and you can 
+    see the latency of each call as well as any result it might
+    have returned. 
+'''
 total_latency = 0
 for result in asyncController.getExecutionResults():
-    current_latency = (result.latency.microseconds/1000)
+    current_latency = (result.latency.microseconds/1000000)
     total_latency += current_latency
-    print("Latency (ms): ", current_latency, "Result: ", result.result)
+
+    result_output = result.result
+    if isinstance(result_output, Exception):
+        result_output = {"ERROR" : result.result}
+
+    print("Latency (ms): ", current_latency, "Result: ", result_output)
 
 stop = datetime.now()
 thread_diff = stop - start

@@ -23,7 +23,11 @@ class ExecuteCommandAsync(Thread):
 
 
         start = datetime.now()
-        execution_result = self.executionFunction(self.executionArguments)
+        execution_result = None
+        try:
+            execution_result = self.executionFunction(self.executionArguments)
+        except Exception as ex:
+            execution_result = ex
         end = datetime.now()
 
         result = ExecuteCommandAsync.ExecutionResult(latency = (end-start), result = execution_result)
