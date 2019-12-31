@@ -21,4 +21,6 @@ def parse_endpoint(name, url=None):
         content = r.content.decode("utf-8") 
         parser.feed(content)
 
-    return {'name' : name, 'target' : url, 'content' : { 'images' : parser.images , 'data' : parser.data , 'links' : parser.embedded_links} }
+
+
+    return {'name' : name, 'target' : url, 'content' : { 'images' : parser.getUniqueImages() , 'data' : parser.data , 'links' : parser.getUniqueLinks()} }
