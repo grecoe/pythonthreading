@@ -4,11 +4,17 @@ from html.parser import HTMLParser
 class CustomParser(HTMLParser):
     def __init__(self):
         HTMLParser.__init__(self)
+        # Deal with script/style tags/content
         self.script_tags = False
         self.ignore_tags = ["script", "style"]
+        # List of img urls
         self.images = []
+        # List of embedded url links
         self.embedded_links = []
+        # Content recovered
         self.data = []
+        # Temp buffer to collect data, data comes separated by lines
+        # so we use a buffer to build up the data. 
         self.buffer = []
 
     def handle_starttag(self, tag, attrs):
@@ -43,12 +49,14 @@ class CustomParser(HTMLParser):
             else:
                 self.buffer.append(data)
 
-        '''
-        if not self.script_tags:
-            cleaned = data.strip()
-            if cleaned:
-                self.data.append(cleaned)
-        '''
+    def getPageData(self, min_word_count = 1):
+        return_data = []
+        existing_data = list(set(self.data))
+        if min_word_count > 1:
+            return_data = [line for line in existing_data if len(line.split(' ')) > (min_word_count - 1)]
+        else:
+            return_data = existing_data
+        return return_data
 
     def getUniqueImages(self):
         return self._getUniqueEntries(self.images)
