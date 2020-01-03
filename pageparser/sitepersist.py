@@ -6,13 +6,15 @@ class SiteDataPath:
     def __init__(self, path):
         self.full_path = path
 
-        parts = path.split('\\')
-        if len(parts) == 5:
-            self.base = parts[0]
-            self.name = parts[1]
-            self.year = parts[2]
-            self.month = parts[3]
-            self.day = parts[4]
+        res = os.path.split(path)
+        self.day = res[1]
+        res = os.path.split(res[0])
+        self.month = res[1]
+        res = os.path.split(res[0])
+        self.year = res[1]
+        res = os.path.split(res[0])
+        self.name = res[1]
+        self.base = res[0]
 
 class WebSiteDataPersist:
     _SitRunHistoryFile = 'run_history'
@@ -78,7 +80,10 @@ class WebSiteDataPersist:
         base = normalizeBase(base)
         directory = os.path.join(base,name)
 
-        paths = [x[0] for x in os.walk(directory) if len(x[0].split('\\')) == 5]
+        additional_parts = len(directory.split('\\'))
+        total_parts = additional_parts + 3
+
+        paths = [x[0] for x in os.walk(directory) if len(x[0].split('\\')) == total_parts]
         for path in paths:
             return_paths.append(SiteDataPath(path))
         return return_paths
