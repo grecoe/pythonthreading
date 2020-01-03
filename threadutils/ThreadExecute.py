@@ -35,7 +35,6 @@ class ExecuteCommandAsync(Thread):
         self.tracking.addThreadResult(result)
         self.tracking.modifyThreadCount(-1)
 
-        #AsyncLog.print("WORKER COMPLETE")
 
         if self.callback:
             self.callback()

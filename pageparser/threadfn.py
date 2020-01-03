@@ -16,12 +16,14 @@ def parse_endpoint(name, url=None, min_word_count = 1):
 
     r = requests.get(url)
     
-    return_result = r.status_code
+    return_result = None
     if r.status_code == 200:
         parser = CustomParser()
         content = r.content.decode("utf-8") 
         parser.feed(content)
+        return_result = {'name' : name, 'target' : url, 'content' : { 'images' : parser.getUniqueImages() , 'data' : parser.getPageData(min_word_count) , 'links' : parser.getUniqueLinks()} }
+    else:
+        return_result = {'name' : name, 'target' : url, 'content' : { 'images' : None , 'data' : None , 'links' : None} }
 
 
-
-    return {'name' : name, 'target' : url, 'content' : { 'images' : parser.getUniqueImages() , 'data' : parser.getPageData(min_word_count) , 'links' : parser.getUniqueLinks()} }
+    return return_result

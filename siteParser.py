@@ -44,12 +44,14 @@ from pageparser.threadfn import parse_endpoint
 from pageparser.persist import createPath
 from pageparser.sitepersist import WebSiteDataPersist
 
+'''
+    Maximum of 15 worker threads.
+'''
 asyncController = AsyncController(15)
 
 start = datetime.now()
 
 endpoint_target = collections.namedtuple('endpoint_target', 'name url')
-
 test_endpoints = [
     endpoint_target(name = "BostonGlobe", url = "http://www.boston.com"), 
     endpoint_target(name = "BostonHerald", url = "https://www.bostonherald.com/"), 

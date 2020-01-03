@@ -20,12 +20,10 @@ class AsyncController:
         self.lock.release()
 
     def runQueueTasks(self):
-        #AsyncLog.print("runQueueTasks " + str(len(self.queue)))
 
         self.lock.acquire()
 
         current_thread_count = self.threadTracking.getThreadCount()
-        #AsyncLog.print("Current thread count = " + str(current_thread_count))
         while current_thread_count < self.executionCount:
             if len(self.queue) > 0:
                 #AsyncLog.print("    Pushing item to execution " )
