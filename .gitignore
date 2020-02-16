@@ -2,4 +2,5 @@
 threadutils/__pycache__/
 pageparser/__pycache__/
 AAADATA/
+NEWSDATA/
 test.py

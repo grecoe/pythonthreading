@@ -9,7 +9,7 @@ import os
 from pageparser.sitepersist import WebSiteDataPersist, SiteDataPath
 
 use_specific_day = False
-base_directory = '.\\AAADATA'
+base_directory = '.\\NEWSDATA'
 
 
 '''
@@ -73,15 +73,35 @@ while True:
         # We have the key to the site, but we need to get keys to the data
         dated_mentions = {}
         for date_key in site_data[site_key]:
-            # Case in-sesitive search of all data using list comprehension
-            dated_mentions[date_key] = [entry for entry in site_data[site_key][date_key] if search_term.lower() in entry.lower()]
+
+            # Case in-sesitive search of all data using list comprehension with the whole term. 
+            if not ' ' in search_term:
+                dated_mentions[date_key] = [entry for entry in site_data[site_key][date_key] if search_term.lower() in entry.lower()]
+            else :        
+                # If there is more than one term, then do sub searches and only add if not already there. 
+                split_search = search_term.split(' ')
+
+                # Get what you can on first term.
+                individual_mentions = [entry for entry in site_data[site_key][date_key] if split_search[0].lower() in entry.lower()]
+                search_index = 1
+                # Now filter them down using the rest of the search terms.
+                while search_index < len(split_search): # Should start at 1 since we have one already
+                    next_mentions = [entry for entry in individual_mentions if split_search[search_index].lower() in entry.lower()]
+                    search_index += 1
+                    individual_mentions = next_mentions
+
+                # Now we have them filtered down
+                dated_mentions[date_key] = individual_mentions
+
+
 
         # Print out the results
         print(site_key, "('" + search_term, "') :")
         for date_key in dated_mentions:
-            print("   " , date_key)
-            for mention in dated_mentions[date_key]:
-                print("    ", mention)
+            if len(dated_mentions[date_key]) > 0:
+                print("   " , date_key)
+                for mention in dated_mentions[date_key]:
+                    print("    ", mention)
         print("")
 
     input("Press a key to search again...")

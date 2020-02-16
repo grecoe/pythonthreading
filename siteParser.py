@@ -86,7 +86,7 @@ execution_results = asyncController.getExecutionResults()
 job_time = datetime.now()
 for result in execution_results:
     # Creates path name/year/month/day
-    dump_path = createPath(".\\AAADATA", result.result["name"], job_time)
+    dump_path = createPath(".\\NEWSDATA", result.result["name"], job_time)
 
     # Update runs for day
     WebSiteDataPersist.updateSiteRunHistory(dump_path, job_time)
