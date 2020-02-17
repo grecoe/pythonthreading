@@ -26,9 +26,6 @@ class Application2(Frame):
         self.master_win = master
         self.site_data = site_data
 
-        self.grid_rowconfigure(2, weight=1)
-        self.grid_columnconfigure(2, weight=1)
-
         '''
             Set up sub frames for each of the groups we need.
         '''
@@ -40,6 +37,11 @@ class Application2(Frame):
 
         self.srchResult = Frame(self.master_win)
         self.srchResult.grid(row=0, column=1, rowspan=2,  sticky='nwse')
+
+        self.master_win.grid_rowconfigure(0, weight=1)
+        self.master_win.grid_rowconfigure(1, weight=1)
+        #self.master_win.grid_columnconfigure(0, weight=1)
+        self.master_win.grid_columnconfigure(1, weight=3)
 
         '''
             Set up the options we want
@@ -58,7 +60,7 @@ class Application2(Frame):
         self._createSourceOptions(self.optFrame)
         self._createSearchOptions(self.srchFrame)
         self.results_pane = tkst.ScrolledText(self.srchResult, wrap=WORD)
-        self.results_pane.pack(fill=BOTH)
+        self.results_pane.pack(fill=BOTH, expand=1)
 
 
 
@@ -128,7 +130,7 @@ class Application2(Frame):
         '''
         search_term = search_term.strip()
         search_terms = search_term.split(' ')
-        search_terms = list(set(search_terms))
+        
         '''
             Get search option
         '''
@@ -158,9 +160,11 @@ class Application2(Frame):
 
             if len(search_data) > 0:
                 for site in search_data.keys():
-                    self.results_pane.insert(END, "\n Source : {} \n".format(site))
+                    self.results_pane.insert(END, "\n*********************\n")
+                    self.results_pane.insert(END, "\nSource : {} \n".format(site))
+                    self.results_pane.insert(END, "\n*********************\n")
                     for date in search_data[site].keys():
-                        self.results_pane.insert(END, "Date : {} - {} stories \n".format(date, len(search_data[site][date])))
+                        self.results_pane.insert(END, "\nDate : {} - {} stories \n\n".format(date, len(search_data[site][date])))
                         story_index = 1
                         for story in search_data[site][date]:
                             self.results_pane.insert(END, "{} : {} \n".format(story_index, story))
@@ -200,8 +204,9 @@ class Application2(Frame):
 
                     elif srch_type == Application2.search_type_all:
                         '''
-                            Has to have all search terms
+                            Has to have all search terms. Clean them up 
                         '''
+                        terms = list(set(terms))
                         dated_mentions = [entry for entry in self.site_data[site_key][date_key] if terms[0].lower() in entry.lower()]
                         if len(dated_mentions) > 0:
                             for term in terms[1:len(terms)]:
@@ -213,8 +218,9 @@ class Application2(Frame):
 
                     elif srch_type == Application2.search_type_any:
                         '''
-                            Has to have any search terms
+                            Has to have any search terms. Clean them up
                         '''
+                        terms = list(set(terms))
                         dated_mentions = []
                         for term in terms:
                             current_mentions = [entry for entry in self.site_data[site_key][date_key] if term.lower() in entry.lower()]
